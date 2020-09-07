@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:SnakeGameFlutter/game_over.dart';
+import 'package:nioka/constante.dart';
+
+import './game_over.dart';
 import 'package:flutter/material.dart';
 
 class GamePage extends StatefulWidget {
@@ -11,81 +13,81 @@ class GamePage extends StatefulWidget {
 
 class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
 
-  int _playerScore;
-  bool _hasStarted;
-  Animation _snakeAnimation;
-  AnimationController _snakeController;
-  List _snake = [404, 405, 406, 407];
-  final int _noOfSquares = 500;
+  int score_jeux;
+  bool _aCommencer;
+  Animation niokaAnimation;
+  AnimationController niokaController;
+  List nioka = [404, 405, 406, 407];
+  final int numCarreau = 500;
   final Duration _duration = Duration(milliseconds: 250);
-  final int _squareSize = 20;
-  String _currentSnakeDirection;
-  int _snakeFoodPosition;
+  final int tailleCreau = 20;
+  String directionNioka;
+  int niokaFoodPosition;
   Random _random = new Random();
 
   @override
   void initState() {
     super.initState();
-    _setUpGame();
+    initialisation_jeux();
   }
 
-  void _setUpGame() {
-    _playerScore = 0;
-    _currentSnakeDirection = 'RIGHT';
-    _hasStarted = true;
+  void initialisation_jeux() {
+    score_jeux = 0;
+    directionNioka = 'RIGHT';
+    _aCommencer = true;
     do {
-      _snakeFoodPosition = _random.nextInt(_noOfSquares);
-    } while(_snake.contains(_snakeFoodPosition));
-    _snakeController = AnimationController(vsync: this, duration: _duration);
-    _snakeAnimation = CurvedAnimation(curve: Curves.easeInOut, parent: _snakeController);
+      niokaFoodPosition = _random.nextInt(numCarreau);
+    } while(nioka.contains(niokaFoodPosition));
+    niokaController = AnimationController(vsync: this, duration: _duration);
+    niokaAnimation = CurvedAnimation(curve: Curves.easeInOut, parent: niokaController);
   }
 
-  void _gameStart() {
+  void debutJeux() {
     Timer.periodic(Duration(milliseconds: 250), (Timer timer) {
       _updateSnake();
-      if(_hasStarted) timer.cancel();
+      if(_aCommencer) timer.cancel();
     });
   }
 
   bool _gameOver() {
-    for (int i = 0; i < _snake.length - 1; i++) if (_snake.last == _snake[i]) return true;
+    for (int i = 0; i < nioka.length - 1; i++) if (nioka.last == nioka[i]) return true;
     return false;
   }
 
   void _updateSnake() {
-    if(!_hasStarted) {
+    if(!_aCommencer) {
       setState(() {
-        _playerScore = (_snake.length - 4) * 100;
-        switch (_currentSnakeDirection) {
-          case 'DOWN':
-            if (_snake.last > _noOfSquares) _snake.add(_snake.last + _squareSize - (_noOfSquares + _squareSize));
-            else _snake.add(_snake.last + _squareSize);
+        score_jeux = (nioka.length - 4) * 100;
+        switch (directionNioka) {
+          case 'BAS':
+            if (nioka.last > numCarreau) nioka.add(nioka.last + tailleCreau - (numCarreau + tailleCreau));
+            else nioka.add(nioka.last + tailleCreau);
             break;
           case 'UP':
-            if (_snake.last < _squareSize) _snake.add(_snake.last - _squareSize + (_noOfSquares + _squareSize));
-            else _snake.add(_snake.last - _squareSize);
+            if (nioka.last < tailleCreau) nioka.add(nioka.last - tailleCreau + (numCarreau + tailleCreau));
+            else nioka.add(nioka.last - tailleCreau);
             break;
           case 'RIGHT':
-            if ((_snake.last + 1) % _squareSize == 0) _snake.add(_snake.last + 1 - _squareSize);
-            else _snake.add(_snake.last + 1);
+            if ((nioka.last + 1) % tailleCreau == 0) nioka.add(nioka.last + 1 - tailleCreau);
+            else nioka.add(nioka.last + 1);
             break;
           case 'LEFT':
-            if ((_snake.last) % _squareSize == 0) _snake.add(_snake.last - 1 + _squareSize);
-            else _snake.add(_snake.last - 1);
+            if ((nioka.last) % tailleCreau == 0) nioka.add(nioka.last - 1 + tailleCreau);
+            else nioka.add(nioka.last - 1);
         }
 
-        if (_snake.last != _snakeFoodPosition) _snake.removeAt(0);
+        if (nioka.last != niokaFoodPosition) nioka.removeAt(0);
         else {
           do {
-            _snakeFoodPosition = _random.nextInt(_noOfSquares);
-          } while (_snake.contains(_snakeFoodPosition));
+            niokaFoodPosition = _random.nextInt(numCarreau);
+          } while (nioka.contains(niokaFoodPosition));
         }
 
         if (_gameOver()) {
           setState(() {
-            _hasStarted = !_hasStarted;
+            _aCommencer = !_aCommencer;
           });
-          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => GameOver(score: _playerScore)));
+          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => GameOver(score: score_jeux)));
         }
       });
     }
@@ -95,61 +97,52 @@ class _GamePageState extends State<GamePage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('SnakeGameFlutter', style: TextStyle(color: Colors.white, fontSize: 20.0)),
+        title: Text('NIOKA', style: TextStyle(color: Colors.white, fontSize: 20.0)),
         centerTitle: false,
-        backgroundColor: Colors.redAccent,
+        backgroundColor: color1,
         actions: <Widget>[
           Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Text('Score: $_playerScore', style: TextStyle(fontSize: 16.0)),
+              child: Text('Score: $score_jeux', style: TextStyle(fontSize: 16.0)),
             )
-          )
-        ],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Colors.redAccent,
-        elevation: 20,
-        label: Text(
-          _hasStarted ? 'Start' : 'Pause',
-          style: TextStyle(),
-        ),
-        onPressed: () {
+          ),
+          IconButton(icon: AnimatedIcon(icon: AnimatedIcons.play_pause, progress: niokaAnimation), onPressed:  () {
           setState(() {
-            if(_hasStarted) _snakeController.forward();
-            else _snakeController.reverse();
-            _hasStarted = !_hasStarted;
-            _gameStart();
+            if(_aCommencer) niokaController.forward();
+            else niokaController.reverse();
+            _aCommencer = !_aCommencer;
+            debutJeux();
           });
-        },
-        icon: AnimatedIcon(icon: AnimatedIcons.play_pause, progress: _snakeAnimation)
+        },)
+        ],
       ),
       body: Center(
         child: GestureDetector(
           onVerticalDragUpdate: (drag) {
-            if (drag.delta.dy > 0 && _currentSnakeDirection != 'UP') _currentSnakeDirection = 'DOWN';
-            else if (drag.delta.dy < 0 && _currentSnakeDirection != 'DOWN') _currentSnakeDirection = 'UP';
+            if (drag.delta.dy > 0 && directionNioka != 'UP') directionNioka = 'BAS';
+            else if (drag.delta.dy < 0 && directionNioka != 'BAS') directionNioka = 'UP';
           },
           onHorizontalDragUpdate: (drag) {
-            if (drag.delta.dx > 0 && _currentSnakeDirection != 'LEFT') _currentSnakeDirection = 'RIGHT';
-            else if (drag.delta.dx < 0 && _currentSnakeDirection != 'RIGHT')  _currentSnakeDirection = 'LEFT';
+            if (drag.delta.dx > 0 && directionNioka != 'LEFT') directionNioka = 'RIGHT';
+            else if (drag.delta.dx < 0 && directionNioka != 'RIGHT')  directionNioka = 'LEFT';
           },
           child: Container(
+            color: Colors.black,
             width: MediaQuery.of(context).size.width,
             child: GridView.builder(
-              itemCount: _squareSize + _noOfSquares,
+              itemCount: tailleCreau + numCarreau,
               physics: NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: _squareSize),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: tailleCreau),
               itemBuilder: (BuildContext context, int index) {
                 return Center(
                   child: Container(
-                    color: Colors.white,
-                    padding: _snake.contains(index) ? EdgeInsets.all(1) : EdgeInsets.all(0),
+                    color: Colors.transparent,
+                    padding: nioka.contains(index) ? EdgeInsets.all(1) : EdgeInsets.all(0),
                     child: ClipRRect(
-                      borderRadius: index == _snakeFoodPosition || index == _snake.last ? BorderRadius.circular(7) : _snake.contains(index) ? BorderRadius.circular(2.5) : BorderRadius.circular(1),
+                      borderRadius: index == niokaFoodPosition || index == nioka.last ? BorderRadius.circular(7) : nioka.contains(index) ? BorderRadius.circular(2.5) : BorderRadius.circular(1),
                       child: Container(
-                        color: _snake.contains(index) ? Colors.black : index == _snakeFoodPosition ? Colors.green : Colors.blue
+                        color: nioka.contains(index) ? Colors.white : index == niokaFoodPosition ? color1 : Colors.black
                       ),
                     ),
                   ),

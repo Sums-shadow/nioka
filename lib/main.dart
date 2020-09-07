@@ -1,4 +1,6 @@
-import 'package:SnakeGameFlutter/home_page.dart';
+import 'package:nioka/constante.dart';
+
+import './home_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -10,7 +12,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'SnakeGameFlutter',
+      color: color1,
+      title: 'Nioka',
       debugShowCheckedModeBanner: false,
       home: HomePage(),
     );
